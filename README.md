@@ -14,9 +14,7 @@
 
 **Visual analysis and diagnostic tools to facilitate machine learning model selection.**
 
-[![Classifiers](docs/images/readme/classifiers.png)](https://www.scikit-yb.org/en/latest/gallery.html)
-[![Clusterers](docs/images/readme/clusterers.png)](https://www.scikit-yb.org/en/latest/gallery.html)
-[![Regressors](docs/images/readme/regressors.png)](https://www.scikit-yb.org/en/latest/gallery.html)
+[![Banner](docs/images/readme/banner.png)](https://www.scikit-yb.org/en/latest/gallery.html)
 
 ## What is Yellowbrick?
 
@@ -39,8 +37,6 @@ You can also use the `-U` flag to update scikit-learn, matplotlib, or any other 
 If you're using Anaconda (recommended for Windows users), you can take advantage of the conda utility to install Yellowbrick:
 
     conda install -c districtdatalabs yellowbrick
-
-Note, however, that there is a [known bug](https://github.com/DistrictDataLabs/yellowbrick/issues/205) installing Yellowbrick on Linux with Anaconda.
 
 ## Using Yellowbrick
 
@@ -117,3 +113,7 @@ _This will remove old datasets and download the new ones. You can also use the `
 ## Citing Yellowbrick
 
 We would be glad if you used Yellowbrick in your scientific publications! If you do, please cite us using the [citation guidelines](https://www.scikit-yb.org/en/latest/about.html#citing-yellowbrick).
+
+## Affiliations
+
+[![District Data Labs](docs/images/readme/affiliates_ddl.png)](https://districtdatalabs.com/) [![NumFOCUS Affiliated Project](docs/images/readme/affiliates_numfocus.png)](https://numfocus.org)

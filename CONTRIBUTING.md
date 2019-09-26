@@ -30,7 +30,7 @@ Yellowbrick is hosted on GitHub at https://github.com/DistrictDataLabs/yellowbri
 
 The typical workflow for a contributor to the codebase is as follows:
 
-1. **Discover** a bug or a feature by using Yellowbrick. 
+1. **Discover** a bug or a feature by using Yellowbrick.
 2. **Discuss** with the core contributes by [adding an issue](https://github.com/DistrictDataLabs/yellowbrick/issues).
 3. **Fork** the repository into your own GitHub account.
 4. Create a **Pull Request** first thing to [connect with us](https://github.com/DistrictDataLabs/yellowbrick/pulls) about your task.
@@ -44,7 +44,7 @@ Once you have a good sense of how you are going to implement the new feature (or
 
 Ideally, any pull request should be capable of resolution within 6 weeks of being opened. This timeline helps to keep our pull request queue small and allows Yellowbrick to maintain a robust release schedule to give our users the best experience possible. However, the most important thing is to keep the dialogue going! And if you're unsure whether you can complete your idea within 6 weeks, you should still go ahead and open a PR and we will be happy to help you scope it down as needed.
 
-If we have comments or questions when we evaluate your pull request and receive no response, we will also close the PR after this period of time. Please know that this does not mean we don't value your contribution, just that things go stale. If in the future you want to pick it back up, feel free to address our original feedback and to reference the original PR in a new pull request. 
+If we have comments or questions when we evaluate your pull request and receive no response, we will also close the PR after this period of time. Please know that this does not mean we don't value your contribution, just that things go stale. If in the future you want to pick it back up, feel free to address our original feedback and to reference the original PR in a new pull request.
 
 ### Forking the Repository
 
@@ -158,12 +158,12 @@ There are two basic types of Visualizers:
 - **Feature Visualizers** are high dimensional data visualizations that are essentially transformers.
 - **Score Visualizers** wrap a scikit-learn regressor, classifier, or clusterer and visualize the behavior or performance of the model on test data.
 
-These two basic types of visualizers map well to the two basic objects in scikit-learn:
+These two basic types of visualizers map well to the two basic estimator objects in scikit-learn:
 
 - **Transformers** take input data and return a new data set.
-- **Estimators** are fit to training data and can make predictions.
+- **Models** are fit to training data and can make predictions.
 
-The scikit-learn API is object oriented, and estimators and transformers are initialized with parameters by instantiating their class. Hyperparameters can also be set using the `set_attrs()` method and retrieved with the corresponding `get_attrs()` method. All scikit-learn estimators have a `fit(X, y=None)` method that accepts a two dimensional data array, `X`, and optionally a vector `y` of target values. The `fit()` method trains the estimator, making it ready to transform data or make predictions. Transformers have an associated `transform(X)` method that returns a new dataset, `Xprime` and models have a `predict(X)` method that returns a vector of predictions, `yhat`. Models also have a `score(X, y)` method that evaluate the performance of the model.
+The scikit-learn API is object oriented, and estimators are initialized with parameters by instantiating their class. Hyperparameters can also be set using the `set_attrs()` method and retrieved with the corresponding `get_attrs()` method. All scikit-learn estimators have a `fit(X, y=None)` method that accepts a two dimensional data array, `X`, and optionally a vector `y` of target values. The `fit()` method trains the estimator, making it ready to transform data or make predictions. Transformers have an associated `transform(X)` method that returns a new dataset, `Xprime` and models have a `predict(X)` method that returns a vector of predictions, `yhat`. Models may also have a `score(X, y)` method that evaluate the performance of the model.
 
 Visualizers interact with scikit-learn objects by intersecting with them at the methods defined above. Specifically, visualizers perform actions related to `fit()`, `transform()`, `predict()`, and `score()` then call a `draw()` method which initializes the underlying figure associated with the visualizer. The user calls the visualizer's `poof()` method, which in turn calls a `finalize()` method on the visualizer to draw legends, titles, etc. and then `poof()` renders the figure. The Visualizer API is therefore:
 
@@ -184,14 +184,13 @@ class MyVisualizer(Visualizer):
         super(MyVisualizer, self).__init__(ax, **kwargs)
 
     def fit(self, X, y=None):
+        super(MyVisualizer, self).fit(X, y)
         self.draw(X)
         return self
 
     def draw(self, X):
-        if self.ax is None:
-            self.ax = self.gca()
-
         self.ax.plot(X)
+        return self.ax
 
     def finalize(self):
         self.set_title("My Visualizer")
@@ -211,28 +210,23 @@ Score visualizers work on the same principle but accept an additional required `
 
 The test package mirrors the `yellowbrick` package in structure and also contains several helper methods and base functionality. To add a test to your visualizer, find the corresponding file to add the test case, or create a new test file in the same place you added your code.
 
-Visual tests are notoriously difficult to create --- how do you test a visualization or figure? Moreover, testing scikit-learn models with real data can consume a lot of memory. Therefore the primary test you should create is simply to test your visualizer from end to end and make sure that no exceptions occur. To assist with this, we have two primary helpers, `VisualTestCase` and `DatasetMixin`. Create your unit test as follows::
+Visual tests are notoriously difficult to create --- how do you test a visualization or figure? Moreover, testing scikit-learn models with real data can consume a lot of memory. Therefore the primary test you should create is simply to test your visualizer from end to end and make sure that no exceptions occur. To assist with this, we have a helper, `VisualTestCase`. Create your unit test as follows::
 
 ```python
 import pytest
 
-from tests.base import VisualTestCase
-from tests.dataset import DatasetMixin
+from yellowbrick.datasets import load_occupancy
 
-class MyVisualizerTests(VisualTestCase, DatasetMixin):
+from tests.base import VisualTestCase
+
+class MyVisualizerTests(VisualTestCase):
 
     def test_my_visualizer(self):
         """
         Test MyVisualizer on a real dataset
         """
-        # Load the data from the fixture
-        dataset = self.load_data('occupancy')
-
-        # Get the data
-        X = dataset[[
-            "temperature", "relative_humidity", "light", "C02", "humidity"
-        ]]
-        y = dataset['occupancy'].astype(int)
+        # Load the data
+        X,y = load_occupancy()
 
         try:
             visualizer = MyVisualizer()
@@ -254,7 +248,7 @@ You can also run your own test file as follows::
 $ pytest tests/test_your_visualizer.py
 ```
 
-The Makefile uses the pytest runner and testing suite as well as the coverage library, so make sure you have those dependencies installed! The `DatasetMixin` also requires [requests.py](http://docs.python-requests.org/en/master/) to fetch data from our Amazon S3 account.
+The Makefile uses the pytest runner and testing suite as well as the coverage library, so make sure you have those dependencies installed!
 
 **Note**: Advanced developers can use our _image comparison tests_ to assert that an image generated matches a baseline image. Read more about this in our [testing documentation](http://www.scikit-yb.org/en/latest/contributing.html#testing)
 
